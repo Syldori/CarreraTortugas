@@ -3,7 +3,7 @@
 Haremos una carrera de tortugas usando los objetos de Turtle.
 
 -Hay que hacer un objeto Carrera/Circuito (contendrá cuatro objetos corredores y un objeto pantalla):
-    -Atributos:
+  -Atributos:
     *corredores [] cramos con una lista/array
         >> serán cuatro corredores que serán cautro instancias del mismo objeto Turtle()
         >>ponemos una lista donde meteremos a cada uno los corredores
@@ -32,11 +32,31 @@ Haremos una carrera de tortugas usando los objetos de Turtle.
         >>el problema es que nos crea la pantalla, pero no al tamaño que queremos
         >>por eso hay que poner los parámetros de width, heigth en screen
         >Le ponemos color >> creando una tupla con los colores y luego llamándola segun posicion
-    
-    -modulo: competir()
-    
+ 
+ --- Diferenciamos el circuito de los corredores   
+  
+  -modulo:
+    *competir()
+        -Queremos que las tortugas avancen por turno, pero un poco aleatorio
+        -Creamos un bucle y en cada bucle, cada uno de los objetos hace una acción
+        -El bule terminará cuando una de ellas llegue a la linea de fin
+        -Será un bule while
+            -cada tortuga lanzará un dado y avance lo que salga
+            -Con un For hacemos que recorra las lista de corredores y que cada tortuga lance y avance
+            -la condición de salida será que una de ellas llegue al final    
+        -Hacer un dado:
+            -importar la librería random
+            -usamos .randint(numero, numero) 
+        -Para la carrera:
+            -creamos la variable hayGanador, y lo ponemos False, para que cuando sea True, finalice el while
+            -Para hacerlo True, hacemos un if dentro del for, para que si la posición X de tortuga llega, termine
+                -usamos .position() > esto nos da la posicion en una tupla
+                -para sacar la coordenada X, pedimos la tortuga.position()[0] 
+                
+                
 '''
 import turtle
+import random
 
 class Circuito():
     corredores = []
@@ -51,6 +71,9 @@ class Circuito():
         self.__startLine = -width/2 + 20
         self.__finishLine = width/2 - 20
         
+        self.__createRunners () #Hacemos esto para separar la parte de circuito de la de corredores
+        
+    def __createRunners(self):
         for i in range(4): # este bucle crea los cuatro corredores
             new_turtle = turtle.Turtle()
             new_turtle.color (self.__colorTurtle[i]) # esto es para pintar las tortugas desde su nacimiento, para que no se pongan en negro al principio
@@ -60,10 +83,22 @@ class Circuito():
                               
             self.corredores.append(new_turtle) # para meter la neuva tortuga en la lista
             
-
+    def competir(self):
+        hayGanador = False #esto sería par la condición de salida
+        
+        while not hayGanador:
+            for tortuga in self.corredores:
+                avance = random.randint(1,6) # esta sería la variable para tirar un dado y luego hacer avanzar la tortuga
+                tortuga.forward(avance) # esto para que avance el numero que salio en 'avance'
+                
+                if tortuga.position()[0] == self.__finishLine: #si la posicion X de alguna de las tortugas llega a la posicion de finsihLine, termina la carrera
+                    hayGanador = True
+                
+            
 
 #esto solo se ejecuta si el programa/modulo es main
 if __name__ == '__main__': # si esta varaible de mi script es igual a main, es decir, está siendo ejecutada directamente desde la consola
     circuito = Circuito(640,480)
+    circuito.competir()
     #Esto es por ejemplo, para evitar que si hacemos un import de circuito, esto ultimo no lo importaría
     # también nos sirve para probar si funciona correctamente    
