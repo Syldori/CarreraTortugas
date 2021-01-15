@@ -53,7 +53,9 @@ Haremos una carrera de tortugas usando los objetos de Turtle.
                 -usamos .position() > esto nos da la posicion en una tupla
                 -para sacar la coordenada X, pedimos la tortuga.position()[0] 
                 
-                
+  --Mensaje para decir quien ha ganado:
+      -si queremos que nos ponga el color de la ganadora, hay que pedir el color en el format
+      >> tortuga.color()[0] - posición 0 porque si pedimos el .color() -esto es una función, de ahí que tenga'()'- nos devuelve el color en tupla
 '''
 import turtle
 import random
@@ -93,8 +95,8 @@ class Circuito():
                 
                 if tortuga.position()[0] == self.__finishLine: #si la posicion X de alguna de las tortugas llega a la posicion de finsihLine, termina la carrera
                     hayGanador = True
-                
-            
+                    print('La tortuga de color {} ha ganado'.format(tortuga.color()[0]))
+                    break #para que no se sigan tirando dados una vez alguna llegue
 
 #esto solo se ejecuta si el programa/modulo es main
 if __name__ == '__main__': # si esta varaible de mi script es igual a main, es decir, está siendo ejecutada directamente desde la consola
