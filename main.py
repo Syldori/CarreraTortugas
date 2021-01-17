@@ -27,7 +27,7 @@ Hay dos elemtos clave y necesarios en pygame:
 
 -Queda crear una clase runner que tenga como atributo la imagen, su posición y montarlo de forma que tenga 4 runners
     >su init incluye x,y para poder posicionarla
-    >le ponemos su imagen
+    >le ponemos su imagen/disfraz
     >le damos un atriuto que será su posición
     >otro atributo que será su nombre
     
@@ -40,14 +40,33 @@ Hay dos elemtos clave y necesarios en pygame:
        -lo inicializamos en la línea inicial como X y en la mitad para Y -por ejemplo)
        -luego lo metemos en la lista de runners
        
+    >Hacer varios jugadores:
+        -creamos un atributo que se llama lista de dsifraces, sera una tupla con las imagenes de los runners
+        -en el init, tras las posiciones x,y
+        -creamos una variable para que ponga de forma aleatoria los trajes
+        -en el self.custome lo ponemos con formato para que poonga el traje en base a la posción aleatoria en la lista que salió en la variable anterior
+        -creamos atributo en Game() con las posiciones Y de los runners
+        -creamos atributo en Game() con los nombres
+        -para crear los 4, lo hacemos ocn una iteración for i in range(4)
+            -itera para que todos empiecen la misma línea X y se ponga en la posición i para la Y
+            -les pone el nombre segun la posción i
+            -añadir a la lista vacía
+        -En la parte de refrescar pantalla en competir, se puede hacer poniendo 4 veces  self.__screen.blit(self.runners[0].custome, self.runners[0].position)
+            o con una iteración for runner/item in self.__runners: (no lo hacemos con un in range para evitar problemas por si nos meten un nº de jugadores diferente que el range que hemos pueesto
     
+    >Hacer correr a varios personajes
+         -crear uan iteración con for runner/item in self.runners:
+             poner el metodo avanza()
+      >> NO PONEMOS SELF. porque estas son variables que solo existen en competir (no son variables que forman parte de la clase/Game()
+          -son variables de usar y tirar, no están siempre presentes
         
--Crear condición de salida/fin para el bucle de competir:
-    >creamos un if de si la posición x del corredor 1 es mayoro o igual que la linea de meta (finishline)
+-Crear condición de salida/fin para el bucle de competir dentro del for de avanzar()
+    >creamos un if de si la posición x del corredor  es mayoro o igual que la linea de meta (finishline)
         haga un print del ganador
         poner a True la condicion de salida
             
-
+--Si queremos que no se acabe abruptamente, se crea un método close(self)
+    >lo metemos fuera del while con un for >> cuando salga del while sigo comprobando lso eventos y si el event es QUIT, en vez de hayGanador True, llamamos a close()
 '''
 
 import pygame
@@ -55,8 +74,13 @@ import sys
 import random
 
 class Runner():
-    def __init__(self,x=0,y=0): # le ponemos las coordenadas para poder especifica donde ponerla 
-        self.custom = pygame.image.load("images/turtle.png")
+    __customes = ('turtle','fish','prawn','moray','octopus')
+    
+    def __init__(self,x=0,y=0): # le ponemos las coordenadas para poder especifica donde ponerla, 
+        
+        ixCustome = random.randint(0,4) #esto es para asignar los disfraces de forma aleatoria
+        
+        self.custome = pygame.image.load("images/{}.png".format(self.__customes[ixCustome])) # lo ponemos así para ahorrarnos los .png en la lista de arriba
         self.position = [x,y] # lo dfinimos como una lista para despues poder pedir su posicion y poder cambiarla para que avance
         self.name = "Tortuga"
         
@@ -65,24 +89,29 @@ class Runner():
         
 class Game():
     runners = []
+    __posY = (160,200,240,280) # esto será para las posiciones de los runners
+    __names = ('A','B','C','D')
     __startLine = 5 
     __finishLine = 620
     
     def __init__(self):
-        self.__screen = pygame.display.set_mode((640,480)) # le ponemos el valor en un tupla        
-                
+        
         #cargar la imagen de fondo de la pantalla
-#         self.__screen.fill((0,255,0)) # esto sería para poner el fondo de pantalla de un color
+        self.__screen = pygame.display.set_mode((640,480)) # le ponemos el valor en un tupla             
         self.__background = pygame.image.load('images/background.png') # aqui dentro se le metería la ruta de la imagen
         pygame.display.set_caption ('Carrera de bichos')
         
-        firstRunner = Runner(self.__startLine,240,)
-        firstRunner.name = "S"
-        self.runners.append(firstRunner) # esto es para meterlo dentro de la lista runners
+        for i in range(4): # iteración para crear los jugadores
+            theRunner = Runner(self.__startLine,self.__posY[i])
+            theRunner.name = self.__names[i]
+            self.runners.append(theRunner) # esto es para meterlo dentro de la lista runners
         
         #runners.append(Runner(self.__startLine,240)) >> esto hace lo mismo que lo anterior, aunque sin nombre
                 
- 
+    def close(self): #esto para que no cierre abruptamente
+        pygame.quit()
+        sys.exit()
+        
     def competir(self):
         x = 0
         hayGanador = False
@@ -91,26 +120,32 @@ class Game():
             #comprobación de eventos
             for event in pygame.event.get(): #para cada evento en la lista de pygame de eventos. Usamos el get y me deuvuel un iterable con todos los eventos uqe se han producido desde el ultimo get/comprobacion realizada
                 if event.type == pygame.QUIT: #este es el evento de salida
-                    pygame.quit() # esto es salir a lo bruto. Hay veces que no termina de salir aun ocn esto, importamos sistema y usamos un quit del sistema (no se puede usar normalmente)
-                    sys.exit()
+                    hayGanador = True
                     
-            self.runners[0].avanzar()
-            
-            if self.runners[0].position[0] >= self.__finishLine: #si la posición x del corredor 1 es mayoro o igual que la linea de meta (finishline)
-                print('{} ha ganado'.format(self.runners[0].name))
-                hayGanador = True
+            for runner in self.runners:
+                runner.avanzar()
+                #condicion de salida
+                if runner.position[0] >= self.__finishLine: #si la posición x del runner es mayoro o igual que la linea de meta (finishline)
+                   print('{} ha ganado'.format(runner.name))
+                   hayGanador = True
                       
                       
             #refrescar/renderizar la pantalla
             self.__screen.blit(self.__background,(0,0))
-            self.__screen.blit(self.runners[0].custom, self.runners[0].position) #para que aparezca en posición 
+             
+            
+            for item in self.runners: #lo hacemos así para que recorrar todos los runners en la lista de runners
+                self.__screen.blit(item.custome, item.position) #para que aparezca en posición
             
             pygame.display.flip()
+        
+        #Hay que hacer un bucle infinito de comprobación para evitar que el programa pete por acumular muchos recursos >> el while va sacando los eventos innecesarios
+        while True: #ponemos esto es un while para poder usar la X roja para cerrar el juego
+            for event in pygame.event.get(): #Cuando llegue al final del while, seguirá comprobando eventos y cerraré solo cuando pulse el QUIT
+                if event.type == pygame.QUIT:
+                    self.close()
             
 
-            
-        pygame.quit()
-        sys.exit()
             
 if __name__ == '__main__':
     pygame.init()
