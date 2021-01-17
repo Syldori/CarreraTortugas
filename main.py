@@ -30,13 +30,24 @@ Hay dos elemtos clave y necesarios en pygame:
     >le ponemos su imagen
     >le damos un atriuto que será su posición
     >otro atributo que será su nombre
-    >Método: moverse/avanzar
+    
+    >>Método: moverse/avanzar
         -importar random > para importar el simulador de un dado aleatorio
+        -para hacerelo avanzar, antes de colocarlo en def competir, en el bucle de while not ganador
+            -self.runners[0].avanzar() >> solo con poner esto hace 
+            
    >>Se crea el jugador llamándo a la clase en el __init__ de Game()
        -lo inicializamos en la línea inicial como X y en la mitad para Y -por ejemplo)
        -luego lo metemos en la lista de runners
-        
+       
     
+        
+-Crear condición de salida/fin para el bucle de competir:
+    >creamos un if de si la posición x del corredor 1 es mayoro o igual que la linea de meta (finishline)
+        haga un print del ganador
+        poner a True la condicion de salida
+            
+
 '''
 
 import pygame
@@ -46,11 +57,11 @@ import random
 class Runner():
     def __init__(self,x=0,y=0): # le ponemos las coordenadas para poder especifica donde ponerla 
         self.custom = pygame.image.load("images/turtle.png")
-        self.position = (x,y) # lo dfinimos como una tupla para despues poder pedir su posicion
+        self.position = [x,y] # lo dfinimos como una lista para despues poder pedir su posicion y poder cambiarla para que avance
         self.name = "Tortuga"
         
     def avanzar(self): #para que corran las torutgas
-        self.position[0] += random.randint(1,6)
+        self.position[0] += random.randint(1,6) #modifica la posición de x sumándole un numero aleatorio
         
 class Game():
     runners = []
@@ -82,16 +93,21 @@ class Game():
                 if event.type == pygame.QUIT: #este es el evento de salida
                     pygame.quit() # esto es salir a lo bruto. Hay veces que no termina de salir aun ocn esto, importamos sistema y usamos un quit del sistema (no se puede usar normalmente)
                     sys.exit()
-        
+                    
+            self.runners[0].avanzar()
+            
+            if self.runners[0].position[0] >= self.__finishLine: #si la posición x del corredor 1 es mayoro o igual que la linea de meta (finishline)
+                print('{} ha ganado'.format(self.runners[0].name))
+                hayGanador = True
+                      
+                      
             #refrescar/renderizar la pantalla
             self.__screen.blit(self.__background,(0,0))
             self.__screen.blit(self.runners[0].custom, self.runners[0].position) #para que aparezca en posición 
             
             pygame.display.flip()
             
-            x += 3
-            if x >= 250: #esto es para que si alguna llega a la linea de fin 
-                hayGanador = True
+
             
         pygame.quit()
         sys.exit()
