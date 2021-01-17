@@ -6,6 +6,8 @@ Hay dos elemtos clave y necesarios en pygame:
 -volvemos a actualizar la pantalla de acueerdo a los eventos/acciones realizadas > objetos cambian según lo que haga el usuario
 -luego volveríamos a pintar/refrescar la pantalla
 
+- En pygames el punto 0,0 no se encuentra en el medio, si no que está en la esquina izquierda superior
+
 
 -en el init tendremos que hacere un bucle 'while not game over' y hay que hacer 2 cosas:
     -comprobar los eventos (si no hacemos este, se bloquea) >> nada más inicir con init, el juego se pondrá a comprobar lo que hace/evento el jugador
@@ -23,24 +25,52 @@ Hay dos elemtos clave y necesarios en pygame:
 -Crear un atributo que sea runner(tortuga) que sea una imagen
     -cargamos la imagen con .image.load
 
--Queda crear una clase runner que tenga como atributo la image, su posición y montarlo de forma que tenga 4 runners
-
+-Queda crear una clase runner que tenga como atributo la imagen, su posición y montarlo de forma que tenga 4 runners
+    >su init incluye x,y para poder posicionarla
+    >le ponemos su imagen
+    >le damos un atriuto que será su posición
+    >otro atributo que será su nombre
+    >Método: moverse/avanzar
+        -importar random > para importar el simulador de un dado aleatorio
+   >>Se crea el jugador llamándo a la clase en el __init__ de Game()
+       -lo inicializamos en la línea inicial como X y en la mitad para Y -por ejemplo)
+       -luego lo metemos en la lista de runners
+        
+    
 '''
 
 import pygame
 import sys
+import random
 
+class Runner():
+    def __init__(self,x=0,y=0): # le ponemos las coordenadas para poder especifica donde ponerla 
+        self.custom = pygame.image.load("images/turtle.png")
+        self.position = (x,y) # lo dfinimos como una tupla para despues poder pedir su posicion
+        self.name = "Tortuga"
+        
+    def avanzar(self): #para que corran las torutgas
+        self.position[0] += random.randint(1,6)
+        
 class Game():
-    corredores = []
+    runners = []
+    __startLine = 5 
+    __finishLine = 620
     
     def __init__(self):
-        self.__screen = pygame.display.set_mode((640,480)) # le ponemos el valor en un tupla
-        pygame.display.set_caption ('Carrera de bichos')
+        self.__screen = pygame.display.set_mode((640,480)) # le ponemos el valor en un tupla        
+                
         #cargar la imagen de fondo de la pantalla
-        self.background = pygame.image.load('images/background.png') # aqui dentro se le metería la ruta de la imagen
-         
-        self.runner = pygame.image.load("images/smallball.png")
+#         self.__screen.fill((0,255,0)) # esto sería para poner el fondo de pantalla de un color
+        self.__background = pygame.image.load('images/background.png') # aqui dentro se le metería la ruta de la imagen
+        pygame.display.set_caption ('Carrera de bichos')
         
+        firstRunner = Runner(self.__startLine,240,)
+        firstRunner.name = "S"
+        self.runners.append(firstRunner) # esto es para meterlo dentro de la lista runners
+        
+        #runners.append(Runner(self.__startLine,240)) >> esto hace lo mismo que lo anterior, aunque sin nombre
+                
  
     def competir(self):
         x = 0
@@ -54,8 +84,9 @@ class Game():
                     sys.exit()
         
             #refrescar/renderizar la pantalla
-            self.__screen .blit(self.background, (0,0))
-            self.__screen.blit(self.runner, (x,240)) #para que aparezca en posición 
+            self.__screen.blit(self.__background,(0,0))
+            self.__screen.blit(self.runners[0].custom, self.runners[0].position) #para que aparezca en posición 
+            
             pygame.display.flip()
             
             x += 3
